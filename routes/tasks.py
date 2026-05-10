@@ -4,7 +4,7 @@ from datetime import datetime
 from bson import ObjectId
 from database import tasks_collection
 from models import Task, TaskCreate, TaskUpdate, TaskStatus
-from auth import get_current_user
+from security import get_current_user
 
 router = APIRouter()
 
@@ -13,6 +13,7 @@ def serialize_task(task) -> dict:
     del task["_id"]
     return task
 
+@router.get("", response_model=List[dict])
 @router.get("/", response_model=List[dict])
 async def get_tasks(
     current_user: dict = Depends(get_current_user),
@@ -33,7 +34,10 @@ async def get_tasks(
             {"description": {"$regex": search, "$options": "i"}}
         ]
     
-    cursor = tasks_collection.find(query).sort(sortBy, order)
+    sort_field = sortBy if sortBy else "createdAt"
+    sort_order = order if order is not None else -1
+    
+    cursor = tasks_collection.find(query).sort(sort_field, sort_order)
     tasks = await cursor.to_list(length=100)
     
     # Check for overdue tasks
@@ -48,6 +52,7 @@ async def get_tasks(
         
     return updated_tasks
 
+@router.post("", response_model=dict)
 @router.post("/", response_model=dict)
 async def create_task(task: TaskCreate, current_user: dict = Depends(get_current_user)):
     task_dict = task.dict()
