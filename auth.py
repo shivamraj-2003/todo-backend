@@ -13,7 +13,14 @@ load_dotenv()
 
 SECRET_KEY = os.getenv("JWT_SECRET", "secret")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
+
+# Safely parse ACCESS_TOKEN_EXPIRE_MINUTES
+try:
+    expire_minutes = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(expire_minutes) if expire_minutes else 1440
+except ValueError:
+    print("WARNING: ACCESS_TOKEN_EXPIRE_MINUTES is not a valid integer. Using default 1440.")
+    ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
