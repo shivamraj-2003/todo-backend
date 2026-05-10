@@ -47,14 +47,15 @@ async def login(response: Response, user_data: UserCreate): # Using UserCreate f
         data={"sub": str(user["_id"])}, expires_delta=access_token_expires
     )
     
+    # Use secure=True and samesite="none" for cross-domain cookies in production
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
-        secure=False, # Set to True in production with HTTPS
+        samesite="none",
+        secure=True, 
     )
     return {"message": "Logged in successfully", "user": {"email": user["email"], "full_name": user.get("full_name")}}
 
