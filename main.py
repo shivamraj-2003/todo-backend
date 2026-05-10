@@ -8,7 +8,7 @@ app = FastAPI(title="Shivam Todo API")
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://your-netlify-site-name.netlify.app", # REPLACE with your actual Netlify URL
+    "https://shivamraj-todo.netlify.app/", # REPLACE with your actual Netlify URL
 ]
 
 app.add_middleware(
