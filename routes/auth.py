@@ -15,14 +15,26 @@ router = APIRouter()
 
 @router.post("/register")
 async def register(user: UserCreate):
-    existing_user = await users_collection.find_one({"email": user.email})
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    user_dict = user.dict()
-    user_dict["hashed_password"] = get_password_hash(user_dict.pop("password"))
-    result = await users_collection.insert_one(user_dict)
-    return {"message": "User created successfully", "id": str(result.inserted_id)}
+    try:
+        print(f"DEBUG: Attempting to find user with email: {user.email}")
+        existing_user = await users_collection.find_one({"email": user.email})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        user_dict = user.dict()
+        user_dict["hashed_password"] = get_password_hash(user_dict.pop("password"))
+        
+        print("DEBUG: Inserting new user into database...")
+        result = await users_collection.insert_one(user_dict)
+        return {"message": "User created successfully", "id": str(result.inserted_id)}
+    except Exception as e:
+        print(f"DATABASE ERROR during registration: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Database error: {str(e)}"
+        )
 
 @router.post("/login")
 async def login(response: Response, user_data: UserCreate): # Using UserCreate for email/password
