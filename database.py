@@ -15,8 +15,6 @@ print(f"Connecting to MongoDB with URI starting with: {MONGO_URI[:20]}...")
 
 client = AsyncIOMotorClient(
     MONGO_URI,
-    tls=True,
-    tlsCAFile=certifi.where(),
     serverSelectionTimeoutMS=5000
 )
 
